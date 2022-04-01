@@ -1,7 +1,7 @@
 # Networking_Assignment_-Spring_2022-
 Network tasks:
 
-sender:
+sender:\n
 	check if its working fine (duh)
 	implement a way for more than 1 receivers add (something on the header or something)
 	try to get the file extension and attach it on the type/extension field on the file attachment header
