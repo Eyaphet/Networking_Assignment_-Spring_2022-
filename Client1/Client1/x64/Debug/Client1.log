@@ -1,0 +1,9 @@
+﻿  client.cpp
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\clientTcp.h(12,1): warning C4005: 'SUBJECTSIZE': macro redefinition
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\clientTcp.h(9): message : see previous definition of 'SUBJECTSIZE'
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\client.cpp(184,39): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\client.cpp(190,39): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\client.cpp(25,7): warning C4101: 'inputmessage': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\client.cpp(253,20): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\Client1\client.cpp(302,30): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Client1.vcxproj -> D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Client1\x64\Debug\Client1.exe

@@ -1,0 +1,16 @@
+﻿  server.cpp
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.h(136,1): warning C4005: 'MSGHDRSIZE': macro redefinition
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.h(10): message : see previous definition of 'MSGHDRSIZE'
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.h(141,1): warning C4005: 'SUBJECTSIZE': macro redefinition
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.h(11): message : see previous definition of 'SUBJECTSIZE'
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(45,26): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(81,27): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(230,9): warning C4101: 'result': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(222,15): warning C4101: 'stat_buf': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(231,6): warning C4101: 'what': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(217,8): warning C4101: 'reqp': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(220,9): warning C4101: 'smsg': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(326,30): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(403,8): warning C4101: 'mappingfile': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(426): warning C4715: 'TcpThread::mappedReceiver': not all control paths return a value
+  Server1.vcxproj -> D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\x64\Debug\Server1.exe
