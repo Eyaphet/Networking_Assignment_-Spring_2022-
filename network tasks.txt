@@ -1,6 +1,6 @@
 Things to do on network:
 
-TEST TEST TEST TEST TEST TEST TEST
+TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST ............ TEST TEST......TESt....TEst...Test....test.....t
 sender:
 	check if its working fine (duh)
 	implement a way for more than 1 receivers add (something on the header or something)
@@ -20,6 +20,7 @@ Receiver:
 	check if its _____ (you guessed it)
 	display the message and stuff
 	save all the message (with its headers and stuff) and the attachment
+	cleanup
 
 
 

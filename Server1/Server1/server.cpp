@@ -38,12 +38,13 @@ TcpServer::TcpServer()
 	if(gethostname(servername,HOSTNAME_LENGTH)!=0) //get the hostname
 		TcpThread::err_sys("Get the host name error,exit");
 	
-	printf("Server: %s waiting to be contacted for time/size request...\n",servername);
+	printf("Server %s ready for connections ...\n",servername);
 	
 	
 	//Create the server socket
 	if ((serverSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		TcpThread::err_sys("Create socket error,exit");
+	
 	
 	//Fill-in Server Port and Address info.
 	//inet_pton(AF_INET, "10.12.110.57", &(sa.sin_addr)); // IPv4
