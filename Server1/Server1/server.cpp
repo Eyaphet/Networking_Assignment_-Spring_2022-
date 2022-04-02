@@ -22,6 +22,7 @@
 #include <sstream>
 
 //int sockets[2];
+
 using namespace std;
 
 std::map<string, int> sockets;
@@ -95,6 +96,7 @@ void TcpServer::start()
 		sockets.insert(pair<string,int> (id->hostname,clientSock)); ///socket number
 		//sockets.insert((id->hostname, id->mode));
 		//receive the client mode and start the required thread
+		cout << "the socket: " << clientSock << endl;
 		Thread* pt;
 		switch (id->mode) {
 			case 'R':
@@ -141,7 +143,7 @@ msg_recv returns the length of bytes in the msg_ptr->buffer,which have been rece
 int TcpThread::msg_recv(int sock, HEADER* msg_ptr)
 {
 	int rbytes, n,count=0;
-
+	cout << sizeof(HEADER);
 	for (rbytes = 0;rbytes < sizeof(HEADER);rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0)
 			err_sys("Recv HEADER Error");
@@ -152,13 +154,14 @@ int TcpThread::msg_recv(int sock, HEADER* msg_ptr)
 }
 int TcpThread::msg_recv(int sock, MESSAGEBODY * msg_ptr,int size)
 {
-	printf("inside:%d\n",size);
 	int rbytes, n, count = 0;
 	char buffer[BUFFER_LENGTH];
 	if (size < BUFFER_LENGTH) {
 		for (rbytes = 0;rbytes < size;rbytes += n) {
-			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0)
+			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0) {
+				cout << "the count: " << n << " the socket: " << sock << endl;
 				err_sys("Recv BODY Error");
+			}
 			count += n;
 		}
 		buffer[size] = '\0';
@@ -168,7 +171,6 @@ int TcpThread::msg_recv(int sock, MESSAGEBODY * msg_ptr,int size)
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
-			std::cout << "here!!";
 			for (rbytes = 0;rbytes < BUFFER_LENGTH;rbytes += n) {
 				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH, 0)) <= 0) {
 					cout << n;
@@ -187,11 +189,10 @@ int TcpThread::msg_recv(int sock, MESSAGEBODY * msg_ptr,int size)
 		}
 		buffer[counter] = '\0';
 		msg_ptr->body += buffer;
-		//msg_ptr->body += '\0';
 		count = size;
-		std::cout << msg_ptr->body;
 
 	}
+	
 	
 
 	return count;
@@ -272,13 +273,14 @@ void TcpThread::run() //cs: Server socket
 		//client not connected message
 		printf("The client is not connected\n");
 	}
+	cout << endl << message.body << endl;
 	receiversock = sockets[receivername.c_str()];
 	cout << "Done receiving!\n";
 	
 	//check if the receiver is connected (might want to do this by sending some of the message and check if it returns -1)
 	//send the header (copy the code from the client)
 	int connected;//holds the value returned from msg_send 
-	if (connected = msg_send(receiversock, &rmsg) != sizeof(HEADER)) {
+	if ((connected = msg_send(receiversock, &rmsg)) != sizeof(HEADER)) {
 		if (connected == -1) {
 			printf("The receiver has been disconected\n");
 			//remove the receiver from the socket map
@@ -289,7 +291,7 @@ void TcpThread::run() //cs: Server socket
 		//output an error could not send properly or something like that
 	}
 	//send the message body
-	if (connected = msg_send(receiversock, message) != rmsg.datalength) {
+	if ((connected = msg_send(receiversock, message)) != rmsg.datalength) {
 		//output an error could not send properly or something like that
 		if (connected == -1) {
 			printf("The receiver has been disconected!\n");
@@ -330,9 +332,8 @@ void TcpThread::run() //cs: Server socket
 	respp = new Resp;
 	strcpy(respp->response,"OK");//make sure to change this and figure out how,when and what to set it too
 	respp->timestamp = (int)time(nullptr);
-	
-	//send confirmation if all went well
-	if (connected = msg_send_response(cs, respp) != sizeof(RESP)) {
+
+	if ((connected = msg_send_response(cs, respp)) != sizeof(Resp)) {
 		//output an error could not send properly or something like that
 		if (connected == -1) {
 			printf("The sender has been disconected!\m Could not send confirmation to sender!\n");
@@ -355,13 +356,9 @@ int TcpThread::msg_send(int sock, MESSAGEBODY msg_ptr)
 	int n, size;
 	size = msg_ptr.body.length();
 	char buffer[BUFFER_LENGTH];
-	//hold the string in the buffer
 	if (size < BUFFER_LENGTH) {
-		//sprintf(*buffer, msg_ptr.body.c_str());
-		printf("HERE");
 		msg_ptr.body.copy(buffer, size, 0);
 		buffer[size] = '\0';
-		printf("Here 2");
 		if ((n = send(sock, (char*)&buffer, size, 0)) != (size)) {
 			err_sys("Send Error");
 		}
@@ -380,7 +377,6 @@ int TcpThread::msg_send(int sock, MESSAGEBODY msg_ptr)
 		}
 		msg_ptr.body.copy(buffer, count, (size - count));
 		buffer[count] = '\0';
-		cout << buffer;
 		if ((n = send(sock, (char*)&buffer, count, 0)) != (count)) {
 			err_sys("Send Error 2");
 		}
@@ -396,7 +392,6 @@ int TcpThread::attach_header_send(int sock, AttachedFile* msg_ptr)
 {
 	int n;
 	if ((n = send(sock, (char*)msg_ptr, sizeof(AttachedFile), 0)) != (sizeof(AttachedFile))) {
-		cout << n;
 		err_sys("Send HEADER Error");
 	}
 	return (n);
@@ -407,7 +402,6 @@ int TcpThread::msg_send(int sock, HEADER* msg_ptr)
 {
 	int n;
 	if ((n = send(sock, (char*)msg_ptr, sizeof(HEADER), 0)) != (sizeof(HEADER))) {
-		cout << n;
 		err_sys("Send HEADER Error");
 	}
 	return (n);
@@ -419,6 +413,7 @@ int TcpThread::msg_send_response(int sock, Resp* respp)
 	if ((n = send(sock, (char*)respp, sizeof(Resp), 0)) != (sizeof(Resp))) {
 		err_sys("Sending response Error");
 	}
+
 	return (n);
 
 }
@@ -560,7 +555,7 @@ void TcpThreadReceiver::run() {//write the final code of the receiver thread her
 	int n;
 	if ((n = msg_recv(cs, message)) != 20)
 		err_sys("Error receiving the confirmation from the receiver");
-	cout << message->response;
+	cout << message->response << endl;
 	//print something depending on message
 
 	//close the connection and remove the socket cs from the map

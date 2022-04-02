@@ -8,9 +8,11 @@
 #define BUFFER_LENGTH 10
 #define MAXPENDING 10
 #define MSGHDRSIZE 8 //Message Header Size
-#define SUBJECTSIZE 72
+#define SUBJECTSIZE 68
 #define MAXCLIENTS 2
 #define MappingFile "mappingfile.csv"//change this
+
+
 
 
 
@@ -128,18 +130,7 @@ public:
 #endif
 
 #pragma once
-#define HOSTNAME_LENGTH 20
-#define RESP_LENGTH 40
-#define REQUEST_PORT 5001
-#define BUFFER_LENGTH 10 
-#define MAXPENDING 10
-#define MSGHDRSIZE 124 //Message Header Size
-#define MESSAGESIZE 1024 ///
-#define SUBJECTSIZE 72
 
-
-#define SUBJECTSIZE 70
-#define MESSAGESIZE 1024
 
 
 

@@ -6,11 +6,8 @@
 #define MAXPENDING 10
 #define MSGHDRSIZE 124 //Message Header Size
 #define MESSAGESIZE 1024 ///
-#define SUBJECTSIZE 72
+#define SUBJECTSIZE 68
 
-
-#define SUBJECTSIZE 70
-#define MESSAGESIZE 1024
 
 #include <winsock2.h>
 #include <stdio.h>
@@ -21,10 +18,6 @@
 #include <sstream>
 
 
-typedef struct {
-	//char hostname[HOSTNAME_LENGTH];
-	std::string data;// [MESSAGESIZE] ;
-}NReq;
 
 typedef struct
 {
@@ -79,7 +72,6 @@ class TcpClient
 	Resp* respp;          /* pointer to response*/
 	/* receive_message and send_message */
 	SMTPMSG smsmg, resmsg;
-	NReq* reqnew;
 
 	HEADER head;
 	MESSAGEBODY body;

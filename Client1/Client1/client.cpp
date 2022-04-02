@@ -36,7 +36,6 @@ void TcpClient::run(int argc, char* argv[])
 		WSACleanup();
 		err_sys("Error in starting WSAStartup()\n");
 	}
-	reqnew = (NReq*)smsmg.buffer;
 
 
 	char choice;
@@ -67,7 +66,8 @@ void TcpClient::run(int argc, char* argv[])
 	if (choice == '2') {
 		cout << "Waiting to receive from email server ... " << endl;
 		//////////////////////////////////////Receiver part//////////////////////////////
-		//receive and do all the receiver things
+		
+		//receive and do all the receiver things here
 
 		//receive the header
 
@@ -127,6 +127,7 @@ void TcpClient::run(int argc, char* argv[])
 		strcpy(respp->response, "250 OK");//also dont forget to change this
 		//send a confirmation to the server
 		if (msg_send_confirmation(sock, respp) != sizeof(Resp)) {
+
 			cout << "sending the confirmation error";
 			err_sys("sending Confirmation error!");
 		}
@@ -183,18 +184,18 @@ void TcpClient::run(int argc, char* argv[])
 		head.timestamp = (int)time(nullptr);//time
 		head.datalength = messagetest.size();
 		body.body = messagetest;
-		reqnew->data = messagetest;
-		strcpy((char*)reqnew->data.c_str(), messagetest.c_str());
+		//reqnew->data = messagetest;
+		//strcpy((char*)reqnew->data.c_str(), messagetest.c_str());
 
 
-		smsmg.length = reqnew->data.length();
+		smsmg.length = messagetest.length();
 		cout << smsmg.buffer << endl;
 
 		//send the header
 		if (msg_send(sock, &head) != sizeof(head))
 			err_sys("Sending req packet error.,exit");
 		//send the body
-		if (msg_send(sock, body) != reqnew->data.size())
+		if (msg_send(sock, body) != head.datalength)
 			err_sys("Sending req packet error.,exit");
 		//send the attachment if its there
 		if (attach == 'Y' || attach == 'y') {
@@ -211,8 +212,9 @@ void TcpClient::run(int argc, char* argv[])
 		printf("Waiting for confirmation from sender ...\n");
 		//check the confirmation message
 		//receive a confirmation if email was sent or not
-		if (msg_recv_confirmation(sock, respp)) {
-			cout << "error receiving the confirmation";
+		cout << sock;
+		if (msg_recv_confirmation(sock, respp)!=sizeof(Resp) ){
+			cout << "error receiving the confirmation" << endl;
 			err_sys("receiving the confirmation");
 		}
 		//Change a couple of things here...including the response messages and stuff
@@ -222,7 +224,7 @@ void TcpClient::run(int argc, char* argv[])
 			printf("Email received successfully at %s", asctime(localtime(&timeFromServer)));
 		}
 		else {
-			printf("Email is not received. Check if the emails were written correctly.\n");
+			printf("Email has not been received. Check if the emails were written correctly.\n");
 		}
 		
 		//cin >> resmsg.timestamp;
@@ -398,8 +400,7 @@ int TcpClient::attach_send(int sock, string filename, int size)
 			cout << buffer;
 			count -= BUFFER_LENGTH;
 		}
-		//we are here.....almost done :)
-		//buffer being corrupted
+
 		if (!fread(&buffer, count, 1, fp))
 		{
 			fclose(fp);
@@ -441,11 +442,12 @@ int TcpClient::attach_header_send(int sock, AttachedFile* msg_ptr)
 int TcpClient::msg_recv_confirmation(int sock, Resp* message) {
 	//receive the confirmation from the receiver
 	int n, rbytes;
-	for (rbytes = 0;rbytes < 20;rbytes += n)
-		if ((n = recv(sock, (char*)message + rbytes, 20, 0)) <= 0)
-			err_sys("Recv Message Error");
+	for (rbytes = 0;rbytes < sizeof(Resp);rbytes += n)
+		if ((n = recv(sock, (char*)message + rbytes, sizeof(Resp), 0)) <= 0) {
+			cout << n << endl;
+			err_sys("Recv confirmation Error");
+		}
 
-	//The heck is this??
 	return n;
 
 }
