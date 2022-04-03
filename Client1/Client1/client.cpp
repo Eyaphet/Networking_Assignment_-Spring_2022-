@@ -12,7 +12,7 @@
 #include <ws2tcpip.h>
 #include <sstream>
 #include <fstream>
-#include <time.h>
+#include <regex>
 
 using namespace std;
 void TcpClient::run(int argc, char* argv[])
@@ -105,6 +105,13 @@ void TcpClient::run(int argc, char* argv[])
 				messagefile.close();
 				// written = 1;
 			}
+			//header and body are received so display them
+			printf("From: %s\n", head.from);
+			printf("To: %s\n", head.to);
+			printf("Subject: %s\n", head.subject);
+			printf("Body: %s", body.body);
+			printf("Timestamp: %d\n", head.timestamp);//change to actual time
+
 		}
 
 
@@ -211,6 +218,7 @@ void TcpClient::run(int argc, char* argv[])
 		smsmg.length = reqnew->data.length();
 		cout << smsmg.buffer << endl;
 
+
 		//send the header
 		if (msg_send(sock, &head) != sizeof(head))
 			err_sys("Sending req packet error.,exit");
@@ -234,6 +242,14 @@ void TcpClient::run(int argc, char* argv[])
 
 		//cast it to the response structure
 		respp = (Resp*)resmsg.buffer;
+		if (msg_recv(sock, &resmsg) != sizeof(Resp)) {
+			err_sys("error receiving confirmation...");
+		}
+		//check if the addresses are valid first
+		if (!(isValid(head.from) && isValid(head.to))) {
+			//invalid headers
+			err_sys("Invalid addresses, check if emails are written correctly");//i ll check this
+		}
 		time_t timeFromServer = (time_t)resmsg.timestamp;
 		if (strcmp(respp->response, "250 OK") == 0) {
 			printf("Email received successfully at %s", asctime(localtime(&timeFromServer)));
@@ -503,7 +519,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
-			std::cout << "here!!";
+			std::cout << "here!!\n";
 			for (rbytes = 0; rbytes < BUFFER_LENGTH - 1; rbytes += n) {
 				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH - 1, 0)) <= 0)
 					err_sys("Recv BODY inside Error");
@@ -537,6 +553,13 @@ int TcpClient::attach_header_recv(int sock, AttachedFile* msg_ptr) {
 	}
 
 	return count;
+}
+int TcpClient::isValid(char email[]) {
+	string email_(email);
+	if (regex_match(email_, regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+")))
+		return 1;
+
+	return 0;
 }
 int TcpClient::attach_recv(int sock, char* container, int size) {
 	//better to put it in a buffer

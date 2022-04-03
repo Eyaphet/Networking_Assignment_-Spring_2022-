@@ -21,6 +21,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <regex>
 
 //int sockets[2];
 using namespace std;
@@ -126,7 +127,7 @@ void TcpThread::err_sys(const char* fmt, ...)
 	exit(1);
 }
 
-int TcpThread::msg_confirmation_send(int sock, Resp *respp)//this needs fixing
+int TcpThread::msg_confirmation_send(int sock, Resp *respp)//to sender //this needs fixing
 {
 	int n;
 	if ((n = send(sock, (char*)respp, sizeof(Resp), 0)) != (sizeof(Resp))) {
@@ -212,7 +213,7 @@ int TcpThread::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 void TcpThread::run() //cs: Server socket
 {
 	//not sure what to do with the first two but they might come handy  
-	Resp* respp;//a pointer to response
+	Resp respp;//a pointer to response
 	Req* reqp; //a pointer to the Request Packet
 
 
@@ -237,31 +238,40 @@ void TcpThread::run() //cs: Server socket
 	if (msg_recv(cs, &message, rmsg.datalength) != rmsg.datalength){
 		err_sys("Receiveing the data error,exit");}
 	else {
-		//save the message header and body
-		fstream messagefile;
-		string filename, time;
-
-		//trying to get the time part here... but...
-		/*time = rmsg.timestamp;
-		replace(time.begin(), time.end(), ':', '.');
-		filename = rmsg.subject;
-		filename += "_";
-		for (int i = 0; i < 24; i++) {
-			filename += time[i];
-		}*/
-		time = to_string(rmsg.timestamp);
-		filename = rmsg.subject;
-		// int written = 0;
-		messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
-		if (messagefile.is_open()) {
-			messagefile << rmsg.from << endl;
-			messagefile << rmsg.to << endl;
-			messagefile << rmsg.subject << endl;
-			messagefile << message.body << endl;
-			messagefile << rmsg.timestamp << endl;
-			messagefile.close();
-			// written = 1;
+		//validate header before receving
+		if (!(isValid(rmsg.from) && isValid(rmsg.to))) {
+		//invalid heaeders
+			sprintf(respp.response, "501 Error");//to sender
 		}
+		else {
+			//save the message header and body
+			fstream messagefile;
+			string filename, time;
+
+			//trying to get the time part here... but...
+			/*time = rmsg.timestamp;
+			replace(time.begin(), time.end(), ':', '.');
+			filename = rmsg.subject;
+			filename += "_";
+			for (int i = 0; i < 24; i++) {
+				filename += time[i];
+			}*/
+			time = to_string(rmsg.timestamp);
+			filename = rmsg.subject;
+			// int written = 0;
+			messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
+			if (messagefile.is_open()) {
+				messagefile << rmsg.from << endl;
+				messagefile << rmsg.to << endl;
+				messagefile << rmsg.subject << endl;
+				messagefile << message.body << endl;
+				messagefile << rmsg.timestamp << endl;
+				messagefile.close();
+				// written = 1;
+			}
+		}
+		
+		
 	}
 
 
@@ -315,8 +325,11 @@ void TcpThread::run() //cs: Server socket
 		//client not connected message
 		printf("The client is not connected\n");
 	}
-	receiversock = sockets[receivername.c_str()];
-	cout << "Done receiving!\n";
+	else {
+		receiversock = sockets[receivername.c_str()];
+		cout << "Done receiving!\n";
+	}
+	
 
 	//check if the receiver is connected (might want to do this by sending some of the message and check if it returns 0)
 	//send the header (copy the code from the client)
@@ -346,11 +359,11 @@ void TcpThread::run() //cs: Server socket
 	////////The culprit???????????
 	
 	//send confirmation if all went well
-	/*respp = new Resp;
-	strcpy(respp->response, "250 OK");
-	respp->timestamp = 3;
+	
+	strcpy(respp.response, "250 OK");
+	respp.timestamp = 3;//check this get the time stamp
 	if (msg_confirmation_send(cs,&respp) != sizeof(Resp))
-		err_sys("Sending the confirmation error");*/
+		err_sys("Sending the confirmation error");
 	//remove the socket and hostname from the sockets map
 	
 	
@@ -558,7 +571,7 @@ void TcpThreadReceiver::run() {//write the final code of the receiver thread her
 	Resp* resp = new Resp;
 	int n;
 	if (msg_recv(cs, resp) != sizeof(Resp))
-		err_sys("Error receiving the confirmation from the receiver");
+		err_sys("Error receiving the confirmation from the receiver");//
 	//print something depending on message
 
 	//close the connection and remove the socket cs from the map
@@ -575,6 +588,13 @@ int TcpThreadReceiver::msg_recv(int sock, Resp* message) {//make sure to change 
 
 	return n;
 
+}
+int TcpThread :: isValid(char email[]) {
+	string email_(email);
+	if (regex_match(email_, regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+")))
+		return 1;
+
+	return 0;
 }
 int TcpThread::attach_send(int sock, char* filename, int size)
 {

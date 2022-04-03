@@ -8,19 +8,17 @@
 #define BUFFER_LENGTH 10
 #define MAXPENDING 10
 #define MSGHDRSIZE 8 //Message Header Size
-#define SUBJECTSIZE 68
+#define SUBJECTSIZE 72
 #define MAXCLIENTS 2
 #define MappingFile "mappingfile.csv"//change this
 
 
 
-
-
-typedef enum{
-	REQ_SIZE=1,REQ_TIME,RESP //Message type
+typedef enum {
+	REQ_SIZE = 1, REQ_TIME, RESP //Message type
 } Type;
 
-typedef struct  
+typedef struct
 {
 	char hostname[HOSTNAME_LENGTH];
 	char filename[FILENAME_LENGTH];
@@ -31,11 +29,12 @@ typedef struct
 	char mode;
 } IDENTITY;
 
-typedef struct  
+typedef struct
 {
-	char response[RESP_LENGTH];//response code
-	int timestamp;//sent timestamp
+	char response[RESP_LENGTH];
+	int timestamp;
 } Resp; //response
+
 typedef struct {
 	char to[HOSTNAME_LENGTH];
 	char from[HOSTNAME_LENGTH];
@@ -64,7 +63,7 @@ typedef struct
 
 class TcpServer
 {
-	int serverSock,clientSock;     /* Socket descriptor for server and client*/
+	int serverSock, clientSock;     /* Socket descriptor for server and client*/
 	struct sockaddr_in ClientAddr; /* Client address */
 	struct sockaddr_in ServerAddr; /* Server address */
 	unsigned short ServerPort;     /* Server port */
@@ -72,17 +71,17 @@ class TcpServer
 	char servername[HOSTNAME_LENGTH];
 
 public:
-		TcpServer();
-		~TcpServer();
-		void start();
+	TcpServer();
+	~TcpServer();
+	void start();
 };
 
 class TcpThread :public Thread
 {
 
 	int cs;
-public: 
-	TcpThread(int clientsocket):cs(clientsocket)
+public:
+	TcpThread(int clientsocket) :cs(clientsocket)
 	{}
 	virtual void run();
 	int msg_send(int sock, MESSAGEBODY msg_ptr);
@@ -93,23 +92,18 @@ public:
 	bool findReceiver(std::string& receiverfound, char email_addres[]);
 
 
-
+	int isValid(char email[]);
 	int attach_header_recv(int sock, AttachedFile* msg_ptr);
 	int attach_recv(int sock, char* container, int size);
 	int attach_send(int sock, char* filename, int size);
 	int attach_header_send(int sock, AttachedFile* msg_ptr);
-
-    int msg_recv(int , MESSAGEBODY * );
-	int msg_recv(int, HEADER *);
+	int msg_recv(int, MESSAGEBODY*);
+	int msg_recv(int, HEADER*);
 	int msg_recv(int sock, MESSAGEBODY* msg_ptr, int size);
+	int msg_send(int, Resp*);
 	int msg_confirmation_send(int sock, Resp* respp);
-	int msg_send(int , MESSAGEBODY * );
-
-	int msg_send_response(int cs, Resp* respp);
-
-
 	unsigned long ResolveName(char name[]);
-    static void err_sys(const char * fmt,...);
+	static void err_sys(const char* fmt, ...);
 	//this thread has to send all the things it has received from the sender and send the confirmation to the sender too 
 };
 ////////////////////////////////TcpThreadReceiver//////////////////////
@@ -121,7 +115,7 @@ public:
 	TcpThreadReceiver(int clientsocket) :cs(clientsocket)
 	{}
 	virtual void run();
-	int msg_recv(int sock, Resp * message);
+	int msg_recv(int sock, Resp* message);
 	//should receive a confirmation from the receiver that it received the message/mail
 	unsigned long ResolveName(char name[]); //not sure if we need it
 	static void err_sys(const char* fmt, ...);//done
@@ -131,7 +125,18 @@ public:
 #endif
 
 #pragma once
+#define HOSTNAME_LENGTH 20
+#define RESP_LENGTH 40
+#define REQUEST_PORT 5001
+#define BUFFER_LENGTH 10 
+#define MAXPENDING 10
+#define MSGHDRSIZE 124 //Message Header Size
+#define MESSAGESIZE 1024 ///
+#define SUBJECTSIZE 72
 
+
+#define SUBJECTSIZE 70
+#define MESSAGESIZE 1024
 
 
 
