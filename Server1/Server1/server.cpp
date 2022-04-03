@@ -246,8 +246,35 @@ void TcpThread::run() //cs: Server socket
 		memset(attachedfile, 0, fileheader.size);
 		cout << fileheader.size;
 		cout << attachedfile;
-		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size)
+		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size){
 			err_sys("Receiving the attached file error,exit!");
+			}
+		else{
+			//save the header and the body into a file called subject_time.txt
+		fstream messagefile;
+		string filename, time;
+
+		/*time = rmsg.timestamp;
+		replace(time.begin(), time.end(), ':', '.');
+		filename = rmsg.subject;
+		filename += "_";
+		for (int i = 0; i < 24; i++) {
+			filename += time[i];
+		}*/
+		filename = rmsg.subject;
+		// int written = 0;
+		messagefile.open(filename + ".txt", ios::out);//Subject_time.txt
+		if (messagefile.is_open()) {
+			messagefile << rmsg.from << endl;
+			messagefile << rmsg.to << endl;
+			messagefile << rmsg.subject << endl;
+			messagefile << message.body << endl;
+			messagefile << rmsg.timestamp << endl;
+			messagefile.close();
+			// written = 1;
+		}
+
+			}
 
 
 
