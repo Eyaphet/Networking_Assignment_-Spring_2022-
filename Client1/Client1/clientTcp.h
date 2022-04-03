@@ -6,8 +6,11 @@
 #define MAXPENDING 10
 #define MSGHDRSIZE 124 //Message Header Size
 #define MESSAGESIZE 1024 ///
-#define SUBJECTSIZE 68
+#define SUBJECTSIZE 72
 
+
+#define SUBJECTSIZE 70
+#define MESSAGESIZE 1024
 
 #include <winsock2.h>
 #include <stdio.h>
@@ -18,6 +21,10 @@
 #include <sstream>
 
 
+typedef struct {
+	//char hostname[HOSTNAME_LENGTH];
+	std::string data;// [MESSAGESIZE] ;
+}NReq;
 
 typedef struct
 {
@@ -28,7 +35,6 @@ typedef struct
 typedef struct
 {
 	char response[RESP_LENGTH];
-	int timestamp;
 } Resp; //response
 
 typedef struct {
@@ -72,6 +78,7 @@ class TcpClient
 	Resp* respp;          /* pointer to response*/
 	/* receive_message and send_message */
 	SMTPMSG smsmg, resmsg;
+	NReq* reqnew;
 
 	HEADER head;
 	MESSAGEBODY body;
@@ -84,24 +91,22 @@ public:
 	//receiver methods
 	int msg_recv(int sock, SMTPMSG* msg_ptr);
 	int msg_recv(int sock, HEADER* msg_ptr);
-	int msg_recv(int sock, MESSAGEBODY* msg_ptr,int length);
+	int msg_recv(int sock, MESSAGEBODY* msg_ptr, int length);
 	int attach_header_recv(int sock, AttachedFile* msg_ptr);
 	int attach_recv(int sock, char* filename, int size);
-	int msg_send_confirmation(int cs, Resp* respp);
+	int isValid(char email[]);
 
 	//sender methods
 	int msg_send(int sock, HEADER* msg_ptr);
 	int msg_send(int sock, MESSAGEBODY msg_ptr);
 	int attach_header_send(int sock, AttachedFile* msg_ptr);
-	int msg_recv_confirmation(int sock, Resp* message);
 	int attach_send(int sock, std::string filename, int size);
 
 
 	int getsize(std::string filename);
 	unsigned long ResolveName(char name[]);
 	void err_sys(const char* fmt, ...);
-	
-	
+
 
 	void initiateconnection(char[]);
 
