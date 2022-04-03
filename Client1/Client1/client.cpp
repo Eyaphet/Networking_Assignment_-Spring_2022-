@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <sstream>
+#include <fstream>
 #include <time.h>
 
 using namespace std;
@@ -61,7 +62,7 @@ void TcpClient::run(int argc, char* argv[])
 	//id->host = clientname;
 	printf("%s\n", id->host);
 	if ((n = send(sock, (char*)id, sizeof(IDENTITY), 0)) != (sizeof(IDENTITY))) {
-		printf("%d", n);
+		printf("%d\n", n);
 		err_sys("choice sending error");
 	}
 
@@ -76,8 +77,35 @@ void TcpClient::run(int argc, char* argv[])
 			err_sys("Receive Req error,exit");//might want to add if there is an attachment and the size of the attachment if that's possible
 
 		//receive the text message
-		if (msg_recv(sock, &body, head.datalength) != head.datalength)
+		if (msg_recv(sock, &body, head.datalength) != head.datalength) {
 			err_sys("Receiveing the data error,exit");
+		}
+		else {
+			//header and body are received, so save them
+			fstream messagefile;
+			string filename, time;
+
+			/*trying to get the time part here... but...
+			time = head.timestamp;
+			replace(time.begin(), time.end(), ':', '.');
+			filename = head.subject;
+			filename += "_";
+			for (int i = 0; i < 24; i++) {
+				filename += time[i];
+			}*/
+			filename = head.subject;
+			// int written = 0;
+			messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
+			if (messagefile.is_open()) {
+				messagefile << head.from << endl;
+				messagefile << head.to << endl;
+				messagefile << head.subject << endl;
+				messagefile << body.body << endl;
+				messagefile << head.timestamp << endl;//convert to actual date and time
+				messagefile.close();
+				// written = 1;
+			}
+		}
 
 
 		//receive the attachement (If there is one)
@@ -470,7 +498,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 		}
 		buffer[size] = '\0';
 		msg_ptr->body = buffer;
-		std::cout << size << msg_ptr->body << std::endl;
+		//std::cout << size << msg_ptr->body << std::endl;
 	}
 	else {
 		int counter = size;
@@ -492,7 +520,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 		buffer[counter] = '\0';
 		msg_ptr->body += buffer;
 		count = size;
-		std::cout << msg_ptr->body;
+		//std::cout << msg_ptr->body;
 
 	}
 
@@ -519,7 +547,7 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 			count += n;
-			strcat(container, buffer);
+			strncat(container, buffer,size);
 		}
 		return count;
 	}
@@ -532,7 +560,7 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 
 			}
 			counter -= BUFFER_LENGTH;
-			strcat(container, buffer);
+			strncat(container, buffer, BUFFER_LENGTH);
 		}
 		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, counter, 0)) <= 0)
@@ -540,7 +568,7 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 
 		}
 		count = size;
-		strcat(container, buffer);
+		strncat(container, buffer, count);
 
 
 	}

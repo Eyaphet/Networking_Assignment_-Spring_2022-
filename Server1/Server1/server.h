@@ -102,6 +102,7 @@ public:
     int msg_recv(int , MESSAGEBODY * );
 	int msg_recv(int, HEADER *);
 	int msg_recv(int sock, MESSAGEBODY* msg_ptr, int size);
+	int msg_confirmation_send(int sock, Resp* respp);
 	int msg_send(int , MESSAGEBODY * );
 
 	int msg_send_response(int cs, Resp* respp);
