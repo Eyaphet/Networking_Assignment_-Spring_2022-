@@ -230,26 +230,11 @@ void TcpThread::run() //cs: Server socket
 	if(msg_recv(cs,&rmsg)!=sizeof(HEADER))
 		err_sys("Receive Req error,exit");//might want to add if there is an attachment and the size of the attachment if that's possible
 	
-	cout << rmsg.datalength;
+	cout << rmsg.datalength << endl;
 
-	if(msg_recv(cs, &message,rmsg.datalength) != rmsg.datalength)
-		err_sys("Receiveing the data error,exit");
-	cout << "the socket: " << cs << endl;
-	cout << message.body;
-
-	//receive the attachment
-	if (rmsg.attachment == 1) {
-
-		if (attach_header_recv(cs, &fileheader) != sizeof(AttachedFile))
-			err_sys("Receiveing the attached file header error,exit");
-		attachedfile =(char*) malloc(fileheader.size);
-		memset(attachedfile, 0, fileheader.size);
-		cout << fileheader.size;
-		cout << attachedfile;
-		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size){
-			err_sys("Receiving the attached file error,exit!");
-			}
-		else{
+	if(msg_recv(cs, &message,rmsg.datalength) != rmsg.datalength){
+		err_sys("Receiveing the data error,exit");}
+	else{
 			//save the header and the body into a file called subject_time.txt
 		fstream messagefile;
 		string filename, time;
@@ -274,9 +259,22 @@ void TcpThread::run() //cs: Server socket
 			// written = 1;
 		}
 
+	}
+	cout << "the socket: " << cs << endl;
+	cout << message.body << endl;
+
+	//receive the attachment
+	if (rmsg.attachment == 1) {
+
+		if (attach_header_recv(cs, &fileheader) != sizeof(AttachedFile))
+			err_sys("Receiveing the attached file header error,exit");
+		attachedfile =(char*) malloc(fileheader.size);
+		memset(attachedfile, 0, fileheader.size);
+		cout << fileheader.size;
+		cout << attachedfile;
+		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size){
+			err_sys("Receiving the attached file error,exit!");
 			}
-
-
 
 	}
 	else {
