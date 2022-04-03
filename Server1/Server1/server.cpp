@@ -239,7 +239,8 @@ void TcpThread::run() //cs: Server socket
 		fstream messagefile;
 		string filename, time;
 
-		/*time = rmsg.timestamp;
+		/*trying to get the time part here... but...
+		time = rmsg.timestamp;
 		replace(time.begin(), time.end(), ':', '.');
 		filename = rmsg.subject;
 		filename += "_";
@@ -248,7 +249,7 @@ void TcpThread::run() //cs: Server socket
 		}*/
 		filename = rmsg.subject;
 		// int written = 0;
-		messagefile.open(filename + ".txt", ios::out);//Subject_time.txt
+		messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
 		if (messagefile.is_open()) {
 			messagefile << rmsg.from << endl;
 			messagefile << rmsg.to << endl;
@@ -275,6 +276,45 @@ void TcpThread::run() //cs: Server socket
 		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size){
 			err_sys("Receiving the attached file error,exit!");
 			}
+		else{
+			// int filesize = fileheader.size;
+			// fstream attachFilesaved;
+			// char FileBuffer[1024 * 40];//idk if this is goinn work
+			// attachFilesaved.open("testing.txt", ios::out | ios::binary);
+			// for (int rbyte = 0; rbyte < filesize/1024 ; rbyte++){
+			// 	memset(attachedfile, 0 , BUFFER_LENGTH);//ik i dont' have buffer in header
+			// 	int attachrecvd = attach_recv(cs, attachedfile, fileheader.size);
+			// 	for(int i = 0; i < 1024; i++){
+			// 		if(rbyte * 1024 + i < filesize){
+			// 			FileBuffer[rbyte * 1024 + i] = attachedfile[i];
+			// 		}
+			// 	}
+
+			
+			// if(filesize % BUFFER_LENGTH != 0){
+			// 	int j = filesize - (filesize % BUFFER_LENGTH);
+			// 	for(int i = 0; i < filesize % BUFFER_LENGTH; i++){
+			// 		if(rbyte * BUFFER_LENGTH + i < filesize){
+			// 			FileBuffer[rbyte * 1024 + i] = attachedfile[i];
+			// 		}
+			// 	}
+			// }
+			// }
+			// cout << FileBuffer;
+			// attachFilesaved.write(FileBuffer, filesize);
+			// attachFilesaved.close();
+
+			#pragma warning(supress:4996)
+			FILE * fp;
+			fp = fopen("testing.txt", "wb");
+			if(!fp){free(attachedfile);}
+			cout << "writing the buffer into attached file...\n";
+			if(!fwrite(attachedfile, fileheader.size, 1, fp)){
+				free(attachedfile);
+				fclose(fp);
+			}
+			fclose(fp);
+		}
 
 	}
 	else {

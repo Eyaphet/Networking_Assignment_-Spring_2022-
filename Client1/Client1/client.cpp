@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <sstream>
+#include <time.h>
 
 using namespace std;
 void TcpClient::run(int argc, char* argv[])
@@ -36,6 +37,7 @@ void TcpClient::run(int argc, char* argv[])
 		WSACleanup();
 		err_sys("Error in starting WSAStartup()\n");
 	}
+	reqnew = (NReq*)smsmg.buffer;
 
 
 	char choice;
@@ -66,8 +68,7 @@ void TcpClient::run(int argc, char* argv[])
 	if (choice == '2') {
 		cout << "Waiting to receive from email server ... " << endl;
 		//////////////////////////////////////Receiver part//////////////////////////////
-		
-		//receive and do all the receiver things here
+		//receive and do all the receiver things
 
 		//receive the header
 
@@ -93,14 +94,13 @@ void TcpClient::run(int argc, char* argv[])
 			char* fileattachment;
 			cout << "we are here inside";
 			fileattachment = (char*)malloc(fileattachheader.size);
-			memset(fileattachment, 0, fileattachheader.size);
 			if (attach_recv(sock, fileattachment, fileattachheader.size) != fileattachheader.size) {
 				//error message that the message could no be received
 				err_sys("Receiving the attachment file error, exit!");
 			}
 #pragma warning(suppress : 4996)
 			FILE* fp;
-			fp = fopen("testing.txt", "wb");//this should be changed
+			fp = fopen("testing.txt", "wb");
 			if (!fp)
 			{
 				free(fileattachment);
@@ -116,21 +116,13 @@ void TcpClient::run(int argc, char* argv[])
 			fclose(fp);
 
 		}
-		printf("%s",head.to);
+		printf("%s", head.to);
 		cout << head.subject << endl;
 		cout << body.body << endl;
 
-		//construct the response
-		Resp* respp=new Resp;
 
-		respp->timestamp = (int)time(nullptr);
-		strcpy(respp->response, "250 OK");//also dont forget to change this
+
 		//send a confirmation to the server
-		if (msg_send_confirmation(sock, respp) != sizeof(Resp)) {
-
-			cout << "sending the confirmation error";
-			err_sys("sending Confirmation error!");
-		}
 
 		//print and save what needs saving
 
@@ -184,18 +176,18 @@ void TcpClient::run(int argc, char* argv[])
 		head.timestamp = (int)time(nullptr);//time
 		head.datalength = messagetest.size();
 		body.body = messagetest;
-		//reqnew->data = messagetest;
-		//strcpy((char*)reqnew->data.c_str(), messagetest.c_str());
+		reqnew->data = messagetest;
+		strcpy((char*)reqnew->data.c_str(), messagetest.c_str());
 
 
-		smsmg.length = messagetest.length();
+		smsmg.length = reqnew->data.length();
 		cout << smsmg.buffer << endl;
 
 		//send the header
 		if (msg_send(sock, &head) != sizeof(head))
 			err_sys("Sending req packet error.,exit");
 		//send the body
-		if (msg_send(sock, body) != head.datalength)
+		if (msg_send(sock, body) != reqnew->data.size())
 			err_sys("Sending req packet error.,exit");
 		//send the attachment if its there
 		if (attach == 'Y' || attach == 'y') {
@@ -209,27 +201,22 @@ void TcpClient::run(int argc, char* argv[])
 			if (attach_send(sock, filename, fileattachheader.size) != fileattachheader.size)
 				err_sys("Sending file error.,exit");
 		}
-		printf("Waiting for confirmation from sender ...\n");
-		//check the confirmation message
-		//receive a confirmation if email was sent or not
-		cout << sock;
-		if (msg_recv_confirmation(sock, respp)!=sizeof(Resp) ){
-			cout << "error receiving the confirmation" << endl;
-			err_sys("receiving the confirmation");
-		}
-		//Change a couple of things here...including the response messages and stuff
+
+
+
+		//cast it to the response structure
 		respp = (Resp*)resmsg.buffer;
-		time_t timeFromServer = (time_t)respp->timestamp;
+		time_t timeFromServer = (time_t)resmsg.timestamp;
 		if (strcmp(respp->response, "250 OK") == 0) {
 			printf("Email received successfully at %s", asctime(localtime(&timeFromServer)));
 		}
 		else {
-			printf("Email has not been received. Check if the emails were written correctly.\n");
+			printf("Email is not received. Check if the emails were written correctly.\n");
 		}
-		
-		//cin >> resmsg.timestamp;
-		//output the time and stuff
-		closesocket(sock);
+		printf("...waiting...\n");
+		cin >> resmsg.timestamp;
+
+		//closesocket(sock);
 	}
 
 }
@@ -400,7 +387,8 @@ int TcpClient::attach_send(int sock, string filename, int size)
 			cout << buffer;
 			count -= BUFFER_LENGTH;
 		}
-
+		//we are here.....almost done :)
+		//buffer being corrupted
 		if (!fread(&buffer, count, 1, fp))
 		{
 			fclose(fp);
@@ -439,30 +427,8 @@ int TcpClient::attach_header_send(int sock, AttachedFile* msg_ptr)
 	}
 	return (n);
 }
-int TcpClient::msg_recv_confirmation(int sock, Resp* message) {
-	//receive the confirmation from the receiver
-	int n, rbytes;
-	for (rbytes = 0;rbytes < sizeof(Resp);rbytes += n)
-		if ((n = recv(sock, (char*)message + rbytes, sizeof(Resp), 0)) <= 0) {
-			cout << n << endl;
-			err_sys("Recv confirmation Error");
-		}
-
-	return n;
-
-}
 
 //////////////////////////////////receiver methods/////////////////////////
-
-int TcpClient::msg_send_confirmation(int cs, Resp* respp)
-{
-	int n;
-	if ((n = send(sock, (char*)respp, sizeof(Resp), 0)) != (sizeof(Resp))) {
-		err_sys("Sending response Error");
-	}
-	return (n);
-}
-
 int TcpClient::msg_recv(int sock, SMTPMSG* msg_ptr)
 {
 	int rbytes, n;
@@ -482,7 +448,7 @@ int TcpClient::msg_recv(int sock, HEADER* msg_ptr)
 {
 	int rbytes, n, count = 0;
 
-	for (rbytes = 0;rbytes < sizeof(HEADER);rbytes += n) {
+	for (rbytes = 0; rbytes < sizeof(HEADER); rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0)
 			err_sys("Recv HEADER Error");
 		count += n;
@@ -497,7 +463,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 	int rbytes, n, count = 0;
 	char buffer[BUFFER_LENGTH];
 	if (size < BUFFER_LENGTH) {
-		for (rbytes = 0;rbytes < size;rbytes += n) {
+		for (rbytes = 0; rbytes < size; rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv BODY Error");
 			count += n;
@@ -510,7 +476,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
 			std::cout << "here!!";
-			for (rbytes = 0;rbytes < BUFFER_LENGTH - 1;rbytes += n) {
+			for (rbytes = 0; rbytes < BUFFER_LENGTH - 1; rbytes += n) {
 				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH - 1, 0)) <= 0)
 					err_sys("Recv BODY inside Error");
 			}
@@ -519,7 +485,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 			counter -= (BUFFER_LENGTH - 1);
 
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, counter, 0)) <= 0)
 				err_sys("Recv BODY Error");
 		}
@@ -536,7 +502,7 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 int TcpClient::attach_header_recv(int sock, AttachedFile* msg_ptr) {
 	int rbytes, n, count = 0;
 
-	for (rbytes = 0;rbytes < sizeof(AttachedFile);rbytes += n) {
+	for (rbytes = 0; rbytes < sizeof(AttachedFile); rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(AttachedFile), 0)) <= 0)
 			err_sys("Recv file HEADER Error");
 		count += n;
@@ -549,39 +515,37 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 	char buffer[BUFFER_LENGTH];
 	int rbytes, n, count = 0;
 	if (size <= BUFFER_LENGTH) {
-		for (rbytes = 0;rbytes < size;rbytes += n) {
+		for (rbytes = 0; rbytes < size; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 			count += n;
-			strncat(container, buffer,size);
+			strcat(container, buffer);
 		}
 		return count;
 	}
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
-			for (rbytes = 0;rbytes < BUFFER_LENGTH;rbytes += n) {
+			for (rbytes = 0; rbytes < BUFFER_LENGTH; rbytes += n) {
 				if ((n = recv(sock, (char*)&buffer + rbytes, BUFFER_LENGTH, 0)) <= 0)
 					err_sys("Recv file HEADER Error");
 
 			}
 			counter -= BUFFER_LENGTH;
-			strncat(container, buffer,BUFFER_LENGTH);
+			strcat(container, buffer);
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, counter, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 
 		}
 		count = size;
-		strncat(container, buffer,counter);
+		strcat(container, buffer);
 
 
 	}
 	return count;
 }
-
-
 
 
 
