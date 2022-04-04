@@ -288,7 +288,7 @@ void TcpThread::run() //cs: Server socket
 		//writing to a file just to test it
 #pragma warning(suppress : 4996)
 		FILE* fp;
-		fp = fopen("subject_t", "wb");//server saves here
+		fp = fopen(fileheader.type.c_str(), "wb");//server saves here
 		if (!fp)
 		{
 			free(attachedfile);
