@@ -31,7 +31,7 @@ void TcpClient::run(int argc, char* argv[])
 	IDENTITY* id = new IDENTITY;
 	AttachedFile fileattachheader;
 	int size;//holds the size of the attachment file
-
+	string filenameonly;
 
 	if (WSAStartup(0x0202, &wsadata) != 0)
 	{
@@ -135,7 +135,7 @@ void TcpClient::run(int argc, char* argv[])
 			}
 #pragma warning(suppress : 4996)
 			FILE* fp;
-			fp = fopen("testing.txt", "wb");
+			fp = fopen(filenameonly, "wb");
 			if (!fp)
 			{
 				free(fileattachment);
@@ -201,6 +201,7 @@ void TcpClient::run(int argc, char* argv[])
 			size = getsize(filename);
 			fileattachheader.size = size;
 			cout << endl << "The attached size" << size << endl;
+			filenameonly = filename.substr(filename.find_last_of('\\') + 1, filename.length());//get the filename from the path
 		}
 
 		//revise the header message and do some editing 
