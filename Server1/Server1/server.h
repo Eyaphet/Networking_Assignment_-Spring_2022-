@@ -53,7 +53,7 @@ typedef struct
 typedef struct
 {
 	int size;
-	char type[10];
+	std::string type;
 
 }AttachedFile;
 
