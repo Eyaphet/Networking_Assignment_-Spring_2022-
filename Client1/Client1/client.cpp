@@ -135,7 +135,7 @@ void TcpClient::run(int argc, char* argv[])
 			}
 #pragma warning(suppress : 4996)
 			FILE* fp;
-			fp = fopen(filenameonly, "wb");
+			fp = fopen(filenameonly.c_str(), "wb");
 			if (!fp)
 			{
 				free(fileattachment);
