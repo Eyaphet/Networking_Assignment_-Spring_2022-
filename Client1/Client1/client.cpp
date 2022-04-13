@@ -11,8 +11,13 @@
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <sstream>
+<<<<<<< HEAD
 #include <queue>
 #include <filesystem>
+=======
+#include <fstream>
+#include <regex>
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 using namespace std;
 void TcpClient::run(int argc, char* argv[])
@@ -32,13 +37,14 @@ void TcpClient::run(int argc, char* argv[])
 	IDENTITY* id = new IDENTITY;
 	AttachedFile fileattachheader;
 	int size;//holds the size of the attachment file
-
+	string filenameonly;
 
 	if (WSAStartup(0x0202, &wsadata) != 0)
 	{
 		WSACleanup();
 		err_sys("Error in starting WSAStartup()\n");
 	}
+	reqnew = (NReq*)smsmg.buffer;
 
 
 
@@ -63,14 +69,22 @@ void TcpClient::run(int argc, char* argv[])
 	gethostname(id->host, HOSTNAME_LENGTH);
 
 	if ((n = send(sock, (char*)id, sizeof(IDENTITY), 0)) != (sizeof(IDENTITY))) {
+<<<<<<< HEAD
+=======
+		printf("%d\n", n);
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		err_sys("choice sending error");
 	}
 
 	if (choice == '2') {
+<<<<<<< HEAD
 		char dir[] = "received";
 		checkDir(dir);
 		
 		std::cout << "Waiting to receive from email server ... " << endl;
+=======
+		cout << "Waiting to receive from email server ... " << endl;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		//////////////////////////////////////Receiver part//////////////////////////////
 		//receive and do all the receiver things
 
@@ -80,8 +94,9 @@ void TcpClient::run(int argc, char* argv[])
 			err_sys("Receive Req error,exit");//might want to add if there is an attachment and the size of the attachment if that's possible
 
 		//receive the text message
-		if (msg_recv(sock, &body, head.datalength) != head.datalength)
+		if (msg_recv(sock, &body, head.datalength) != head.datalength) {
 			err_sys("Receiveing the data error,exit");
+<<<<<<< HEAD
 		//save the message
 		fstream messagefile;
 		string filename;
@@ -107,6 +122,43 @@ void TcpClient::run(int argc, char* argv[])
 		std::printf("Subject: %s\n", head.subject);
 		cout << "Body: "<<body.body << endl;
 		std::printf("Timestamp: %s\n", asctime(localtime(&thetime)));//change to actual time
+=======
+		}
+		else {
+			//header and body are received, so save them
+			fstream messagefile;
+			string filename, time;
+
+			/*trying to get the time part here... but...
+			time = head.timestamp;
+			replace(time.begin(), time.end(), ':', '.');
+			filename = head.subject;
+			filename += "_";
+			for (int i = 0; i < 24; i++) {
+				filename += time[i];
+			}*/
+			filename = head.subject;
+			// int written = 0;
+			messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
+			if (messagefile.is_open()) {
+				messagefile << head.from << endl;
+				messagefile << head.to << endl;
+				messagefile << head.subject << endl;
+				messagefile << body.body << endl;
+				messagefile << head.timestamp << endl;//convert to actual date and time
+				messagefile.close();
+				// written = 1;
+			}
+			//header and body are received so display them
+			printf("From: %s\n", head.from);
+			printf("To: %s\n", head.to);
+			printf("Subject: %s\n", head.subject);
+			printf("Body: %s", body.body);
+			printf("Timestamp: %d\n", head.timestamp);//change to actual time
+
+		}
+
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 		//receive the attachement (If there is one)
 
@@ -121,17 +173,20 @@ void TcpClient::run(int argc, char* argv[])
 			//create a char array that can hold the whole file
 			char* fileattachment;
 			fileattachment = (char*)malloc(fileattachheader.size);
-			memset(fileattachment, 0, fileattachheader.size);
 			if (attach_recv(sock, fileattachment, fileattachheader.size) != fileattachheader.size) {
 				//error message that the message could no be received
 				err_sys("Receiving the attachment file error, exit!");
 			}
 #pragma warning(suppress : 4996)
 			FILE* fp;
+<<<<<<< HEAD
 			string finalname = dir;
 			finalname += "\\";
 			finalname += fileattachheader.type;
 			fp = fopen(finalname.c_str(), "wb");//didnt test this should work though
+=======
+			fp = fopen(filenameonly.c_str(), "wb");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			if (!fp)
 			{
 				
@@ -148,6 +203,7 @@ void TcpClient::run(int argc, char* argv[])
 			fclose(fp);
 
 		}
+<<<<<<< HEAD
 
 
 		//save the file here
@@ -174,6 +230,15 @@ void TcpClient::run(int argc, char* argv[])
 			messagefile.close();
 			// written = 1;
 		}
+=======
+		printf("%s", head.to);
+		cout << head.subject << endl;
+		cout << body.body << endl;
+
+
+
+		//send a confirmation to the server
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 
 		Resp* respp = new Resp;
@@ -246,10 +311,15 @@ void TcpClient::run(int argc, char* argv[])
 			getline(cin, filename);//the filename length should include the path too
 			size = getsize(filename);
 			fileattachheader.size = size;
+<<<<<<< HEAD
 			file=filename;
 			string temp = filename.substr(filename.find_last_of("\\")+1);
 			strcpy(fileattachheader.type, temp.c_str());
 			//cout << endl << "The attached size" << size << endl;
+=======
+			cout << endl << "The attached size" << size << endl;
+			filenameonly = filename.substr(filename.find_last_of('\\') + 1, filename.length());//get the filename from the path
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		}
 
 
@@ -261,6 +331,7 @@ void TcpClient::run(int argc, char* argv[])
 		head.timestamp = (int)time(nullptr);//time
 		head.datalength = messagetest.size();
 		body.body = messagetest;
+<<<<<<< HEAD
 
 		MESSAGEBODY cc_clients;
 		cc_clients.body = cc;
@@ -286,10 +357,21 @@ void TcpClient::run(int argc, char* argv[])
 		
 		//cout << smsmg.buffer << endl;
 		//cout << endl << sock << endl;
+=======
+		reqnew->data = messagetest;
+		strcpy((char*)reqnew->data.c_str(), messagetest.c_str());
+
+
+		smsmg.length = reqnew->data.length();
+		cout << smsmg.buffer << endl;
+
+
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		//send the header
 		if (msg_send(sock, &head) != sizeof(HEADER))
 			err_sys("Sending req packet error.,exit");
 		//send the body
+<<<<<<< HEAD
 		head.cc = 0;
 		head.cc = cc_clients.body.length();
 		if (head.cc != 0) {
@@ -297,6 +379,9 @@ void TcpClient::run(int argc, char* argv[])
 				err_sys("Sending the CC ");
 		}
 		if (msg_send_body(sock, body) != body.body.length())
+=======
+		if (msg_send(sock, body) != reqnew->data.size())
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			err_sys("Sending req packet error.,exit");
 		//send the attachment if its there
 		if (attach == 'Y' || attach == 'y') {
@@ -312,6 +397,7 @@ void TcpClient::run(int argc, char* argv[])
 			if (attach_send(sock, file.c_str(), fileattachheader.size) != fileattachheader.size)
 				err_sys("Sending file error.,exit");
 		}
+<<<<<<< HEAD
 		messagefile.open(filename.c_str(), fstream::out);//Subject_time.txt   
 		if (messagefile.is_open()) {
 			messagefile << head.from << endl;
@@ -352,6 +438,32 @@ void TcpClient::run(int argc, char* argv[])
 		
 
 		closesocket(sock);
+=======
+
+
+
+		//cast it to the response structure
+		respp = (Resp*)resmsg.buffer;
+		if (msg_recv(sock, &resmsg) != sizeof(Resp)) {
+			err_sys("error receiving confirmation...");
+		}
+		//check if the addresses are valid first
+		if (!(isValid(head.from) && isValid(head.to))) {
+			//invalid headers
+			err_sys("Invalid addresses, check if emails are written correctly");//i ll check this
+		}
+		time_t timeFromServer = (time_t)resmsg.timestamp;
+		if (strcmp(respp->response, "250 OK") == 0) {
+			printf("Email received successfully at %s", asctime(localtime(&timeFromServer)));
+		}
+		else {
+			printf("Email is not received. Check if the emails were written correctly.\n");
+		}
+		printf("...waiting...\n");
+		cin >> resmsg.timestamp;
+
+		//closesocket(sock);
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 
 }
@@ -557,7 +669,11 @@ int TcpClient::attach_send(int sock, string filename, int size)
 		}
 		//we are here.....almost done :)
 		//buffer being corrupted
+<<<<<<< HEAD
 		if (!file.read(buff, count))//(!fread(buff, count, 1, fp))
+=======
+		if (!fread(&buffer, count, 1, fp))
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		{
 			fclose(fp);
 			cout << "reading the last part of the file error";
@@ -610,15 +726,38 @@ int TcpClient::attach_header_send(int sock, AttachedFile* msg_ptr)
 }
 
 //////////////////////////////////receiver methods/////////////////////////
+<<<<<<< HEAD
+=======
+int TcpClient::msg_recv(int sock, SMTPMSG* msg_ptr)
+{
+	int rbytes, n;
+
+	for (rbytes = 0; rbytes < MSGHDRSIZE; rbytes += n)
+		if ((n = recv(sock, (char*)msg_ptr + rbytes, MSGHDRSIZE - rbytes, 0)) <= 0)
+			err_sys("Recv MSGHDR Error");
+
+	for (rbytes = 0; rbytes < msg_ptr->length; rbytes += n)
+		if ((n = recv(sock, (char*)msg_ptr->buffer + rbytes, msg_ptr->length - rbytes, 0)) <= 0)
+			err_sys("Recevier Buffer Error");
+
+	return msg_ptr->length;
+}
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 int TcpClient::msg_recv(int sock, HEADER* msg_ptr)
 {
 	int rbytes, n, count = 0;
+<<<<<<< HEAD
 	for (rbytes = 0;rbytes < sizeof(HEADER);rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0) {
 			cout << "it'll work";
 			cout << n << endl;
 			cout << sock << endl;
+=======
+
+	for (rbytes = 0; rbytes < sizeof(HEADER); rbytes += n) {
+		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0)
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			err_sys("Recv HEADER Error");
 		}
 		count += n;
@@ -631,18 +770,27 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 	int rbytes, n, count = 0;
 	char buffer[BUFFER_LENGTH];
 	if (size < BUFFER_LENGTH) {
-		for (rbytes = 0;rbytes < size;rbytes += n) {
+		for (rbytes = 0; rbytes < size; rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv BODY Error");
 			count += n;
 		}
 		buffer[size] = '\0';
 		msg_ptr->body = buffer;
+<<<<<<< HEAD
+=======
+		//std::cout << size << msg_ptr->body << std::endl;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
+<<<<<<< HEAD
 			for (rbytes = 0;rbytes < BUFFER_LENGTH - 1;rbytes += n) {
+=======
+			std::cout << "here!!\n";
+			for (rbytes = 0; rbytes < BUFFER_LENGTH - 1; rbytes += n) {
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH - 1, 0)) <= 0)
 					err_sys("Recv BODY inside Error");
 			}
@@ -651,20 +799,25 @@ int TcpClient::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 			counter -= (BUFFER_LENGTH - 1);
 
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, counter, 0)) <= 0)
 				err_sys("Recv BODY Error");
 		}
 		buffer[counter] = '\0';
 		msg_ptr->body += buffer;
 		count = size;
+<<<<<<< HEAD
+=======
+		//std::cout << msg_ptr->body;
+
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	return count;
 }
 int TcpClient::attach_header_recv(int sock, AttachedFile* msg_ptr) {
 	int rbytes, n, count = 0;
 
-	for (rbytes = 0;rbytes < sizeof(AttachedFile);rbytes += n) {
+	for (rbytes = 0; rbytes < sizeof(AttachedFile); rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(AttachedFile), 0)) <= 0)
 			err_sys("Recv file HEADER Error");
 		count += n;
@@ -672,12 +825,19 @@ int TcpClient::attach_header_recv(int sock, AttachedFile* msg_ptr) {
 
 	return count;
 }
+int TcpClient::isValid(char email[]) {
+	string email_(email);
+	if (regex_match(email_, regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+")))
+		return 1;
+
+	return 0;
+}
 int TcpClient::attach_recv(int sock, char* container, int size) {
 	//better to put it in a buffer
 	char buffer[BUFFER_LENGTH];
 	int rbytes, n, count = 0;
 	if (size <= BUFFER_LENGTH) {
-		for (rbytes = 0;rbytes < size;rbytes += n) {
+		for (rbytes = 0; rbytes < size; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 			count += n;
@@ -688,8 +848,12 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
+<<<<<<< HEAD
 			memset(buffer, 0, BUFFER_LENGTH);
 			for (rbytes = 0;rbytes < BUFFER_LENGTH;rbytes += n) {
+=======
+			for (rbytes = 0; rbytes < BUFFER_LENGTH; rbytes += n) {
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 				if ((n = recv(sock, (char*)&buffer + rbytes, BUFFER_LENGTH, 0)) <= 0)
 					err_sys("Recv file HEADER Error");
 
@@ -697,13 +861,13 @@ int TcpClient::attach_recv(int sock, char* container, int size) {
 			counter -= BUFFER_LENGTH;
 			strncat(container, buffer, BUFFER_LENGTH);
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, counter, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 
 		}
 		count = size;
-		strncat(container, buffer,counter);
+		strncat(container, buffer, count);
 
 	}
 	return count;
@@ -717,8 +881,6 @@ int TcpClient::msg_confirmation_send(int sock, Resp* respp)
 	}
 	return (n);
 }
-
-
 
 
 int main(int argc, char* argv[])

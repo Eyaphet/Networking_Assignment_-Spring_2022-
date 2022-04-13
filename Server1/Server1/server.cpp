@@ -20,7 +20,11 @@
 #include <string>
 #include <vector>
 #include <sstream>
+<<<<<<< HEAD
 #include <queue>
+=======
+#include <algorithm>
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 #include <regex>
 
 //int sockets[2];
@@ -42,7 +46,11 @@ TcpServer::TcpServer()
 	if (gethostname(servername, HOSTNAME_LENGTH) != 0) //get the hostname
 		TcpThread::err_sys("Get the host name error,exit");
 
+<<<<<<< HEAD
 	printf("Server: %s ready for email transmission...\n", servername);
+=======
+	printf("Server: %s waiting to be contacted for mail transfer...\n", servername);
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 
 	//Create the server socket
@@ -90,6 +98,7 @@ void TcpServer::start()
 
 		//receive client mode and client name using the IDENTITY struct
 		IDENTITY* id = new IDENTITY;
+<<<<<<< HEAD
 		for (rbytes = 0;rbytes < sizeof(IDENTITY);rbytes += n)
 			if ((n = recv(clientSock, (char*)id, sizeof(IDENTITY), 0)) <= 0)
 				TcpThread::err_sys("Recv Mode Error");
@@ -100,11 +109,29 @@ void TcpServer::start()
 		case 'R':
 			cout << "Host " << id->hostname << " connected as Receiver at socket number: " << clientSock << endl;
 			receiversock.insert(pair<string, int>(id->hostname,clientSock));
+=======
+		for (rbytes = 0; rbytes < sizeof(IDENTITY); rbytes += n)
+			if ((n = recv(clientSock, (char*)id, sizeof(IDENTITY), 0)) <= 0)
+				TcpThread::err_sys("Recv Mode Error");
+		printf("%d : ", n);
+		cout << id->hostname << ", mode : " << id->mode << endl;
+		//add the client socket number and name in the map
+		//pair<char[HOSTNAME_LENGTH], char> pair (id->hostname, id->mode);
+		sockets.insert(pair<string, int>(id->hostname, clientSock)); ///socket number
+		cout << sockets[id->hostname] << endl; 
+		//receive the client mode and start the required thread
+		Thread* pt;
+		switch (id->mode) {
+		case 'R':
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			pt = new TcpThreadReceiver(clientSock);
 			//pt->start();
 			break;
 		default:
+<<<<<<< HEAD
 			cout << "Host " << id->hostname << " connected as Sender at socket number: " << clientSock << endl;
+=======
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			pt = new TcpThread(clientSock);
 			//pt->start();
 			break;
@@ -126,11 +153,20 @@ void TcpThread::err_sys(const char* fmt, ...)
 	exit(1);
 }
 
+<<<<<<< HEAD
 int TcpThread::msg_confirmation_send(int sock, Resp* respp)
 {
 	int n;
 	if ((n = send(sock, (char*)respp, sizeof(Resp), 0)) != (sizeof(Resp))) {
 		return n;
+=======
+int TcpThread::msg_confirmation_send(int sock, Resp *respp)//to sender //this needs fixing
+{
+	int n;
+	if ((n = send(sock, (char*)respp, sizeof(Resp), 0)) != (sizeof(Resp))) {
+		cout << n;
+		err_sys("Send confirmation Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	return (n);
 }
@@ -154,10 +190,16 @@ int TcpThread::msg_recv(int sock, HEADER* msg_ptr)
 {
 	int rbytes, n, count = 0;
 
+<<<<<<< HEAD
 	for (rbytes = 0;rbytes < sizeof(HEADER);rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0) {
 			return n;
 		}
+=======
+	for (rbytes = 0; rbytes < sizeof(HEADER); rbytes += n) {
+		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(HEADER), 0)) <= 0)
+			err_sys("Recv HEADER Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		count += n;
 		
 	}
@@ -166,31 +208,49 @@ int TcpThread::msg_recv(int sock, HEADER* msg_ptr)
 }
 int TcpThread::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 {
+	printf("inside\n");
 	int rbytes, n, count = 0;
 	char buffer[BUFFER_LENGTH];
 	if (size < BUFFER_LENGTH) {
+<<<<<<< HEAD
 		for (rbytes = 0;rbytes < size;rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0)
 				return n;
+=======
+		for (rbytes = 0; rbytes < size; rbytes += n) {
+			if ((n = recv(sock, (char*)buffer + rbytes, size, 0)) <= 0)
+				err_sys("Recv BODY Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			count += n;
 		}
 		buffer[size] = '\0';
 		msg_ptr->body = buffer;
+<<<<<<< HEAD
+=======
+		//std::cout << size << msg_ptr->body << std::endl;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
+<<<<<<< HEAD
 			for (rbytes = 0;rbytes < BUFFER_LENGTH - 1;rbytes += n) {
 				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH - 1, 0)) <= 0)
 					return n;
 					//err_sys("Recv BODY inside Error");
+=======
+			std::cout << "here!!";
+			for (rbytes = 0; rbytes < BUFFER_LENGTH - 1; rbytes += n) {
+				if ((n = recv(sock, (char*)buffer + rbytes, BUFFER_LENGTH - 1, 0)) <= 0)
+					err_sys("Recv BODY inside Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			}
 			buffer[BUFFER_LENGTH - 1] = '\0';
 			msg_ptr->body += buffer;
 			counter -= (BUFFER_LENGTH - 1);
 
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)buffer + rbytes, counter, 0)) <= 0)
 				return n;
 				//err_sys("Recv BODY Error");
@@ -198,6 +258,7 @@ int TcpThread::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 		buffer[counter] = '\0';
 		msg_ptr->body += buffer;
 		count = size;
+		//std::cout << msg_ptr->body;
 
 	}
 
@@ -210,6 +271,7 @@ int TcpThread::msg_recv(int sock, MESSAGEBODY* msg_ptr, int size)
 
 void TcpThread::run() //cs: Server socket
 {
+<<<<<<< HEAD
 	Resp* respp;//a pointer to response
 	respp = new Resp;
 
@@ -323,10 +385,85 @@ void TcpThread::run() //cs: Server socket
 			closesocket(cs);
 			//terminate this thread
 		}
+=======
+	//not sure what to do with the first two but they might come handy  
+	Resp respp;//a pointer to response
+	Req* reqp; //a pointer to the Request Packet
+
+
+	HEADER smsg, rmsg; //send_message receive_message
+	MESSAGEBODY message;
+	struct _stat stat_buf;
+	int receiversock = -1;
+	string receivername;
+	AttachedFile fileheader;
+	char* attachedfile;
+	//those two are not that usefull (using them to print stuff)
+	int result;
+	int what;
+
+
+
+	//receive the header and text message
+
+	if (msg_recv(cs, &rmsg) != sizeof(HEADER))
+		err_sys("Receive Req error,exit");//might want to add if there is an attachment and the size of the attachment if that's possible
+
+	if (msg_recv(cs, &message, rmsg.datalength) != rmsg.datalength){
+		err_sys("Receiveing the data error,exit");}
+	else {
+		//validate header before receving
+		if (!(isValid(rmsg.from) && isValid(rmsg.to))) {
+		//invalid heaeders
+			sprintf(respp.response, "501 Error");//to sender
+		}
+		else {
+			//save the message header and body
+			fstream messagefile;
+			string filename, time;
+
+			//trying to get the time part here... but...
+			/*time = rmsg.timestamp;
+			replace(time.begin(), time.end(), ':', '.');
+			filename = rmsg.subject;
+			filename += "_";
+			for (int i = 0; i < 24; i++) {
+				filename += time[i];
+			}*/
+			time = to_string(rmsg.timestamp);
+			filename = rmsg.subject;
+			// int written = 0;
+			messagefile.open(filename + ".txt", ios::out);//Subject_time.txt   
+			if (messagefile.is_open()) {
+				messagefile << rmsg.from << endl;
+				messagefile << rmsg.to << endl;
+				messagefile << rmsg.subject << endl;
+				messagefile << message.body << endl;
+				messagefile << rmsg.timestamp << endl;
+				messagefile.close();
+				// written = 1;
+			}
+		}
+		
+		
+	}
+
+
+	//receive the attachment
+	if (rmsg.attachment == 1) {
+		if (attach_header_recv(cs, &fileheader) != sizeof(AttachedFile))
+			err_sys("Receiveing the attached file header error,exit");
+		attachedfile = (char*)malloc(fileheader.size);
+		cout << fileheader.size;
+		cout << *attachedfile;
+		if (attach_recv(cs, attachedfile, fileheader.size) != fileheader.size)
+			err_sys("Receiving the attached file error,exit");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 		//writing to a file just to test it
 #pragma warning(suppress : 4996)
 		FILE* fp;
+<<<<<<< HEAD
 		fp = fopen("testing.pdf", "wb");
 		//testing
 		//string name = "testing.mp3";
@@ -356,6 +493,23 @@ void TcpThread::run() //cs: Server socket
 		//}
 		fclose(fp);
 		//file.close();
+=======
+		fp = fopen(fileheader.type.c_str(), "wb");//server saves here
+		if (!fp)
+		{
+			free(attachedfile);
+		}
+		cout << endl << "we are writing: " << *attachedfile;
+		// Write the entire buffer to file
+		cout << "Writing the buffer into a file";
+		if (!fwrite(attachedfile, fileheader.size, 1, fp))
+		{
+			free(attachedfile);
+			fclose(fp);
+		}
+		fclose(fp);
+		//free(attachedfile);
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	else {
 		attachedfile = (char*)malloc(1);
@@ -366,6 +520,7 @@ void TcpThread::run() //cs: Server socket
 		//output an error about client not existing
 	//	cout << "The client doesnt exist!";
 	//}
+<<<<<<< HEAD
 	// 
 	// 
 	strcpy(respp->response, "250 OK");
@@ -389,9 +544,15 @@ void TcpThread::run() //cs: Server socket
 			allWentWell = false;
 			continue;
 		}
+=======
+	if (findReceiver(receivername, rmsg.to)) {
+		cout << "receiver found\n";
+	}
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 		cout << "Sending mail to receiver: " << receivername << " ..."<<endl;
 
+<<<<<<< HEAD
 		//we now have the client name so check it on the sockets map
 		if (sockets[receivername.c_str()] == 0) {
 			//client not connected message
@@ -466,10 +627,48 @@ void TcpThread::run() //cs: Server socket
 				allWentWell = false;
 				continue;
 			}
+=======
+	cout << "The receiver: " << receivername << endl;
+
+	//we now have the client name so check it on the sockets map
+	if (sockets[receivername.c_str()] == 0) {
+		//client not connected message
+		printf("The client is not connected\n");
+	}
+	else {
+		receiversock = sockets[receivername.c_str()];
+		cout << "Done receiving!\n";
+	}
+	
+
+	//check if the receiver is connected (might want to do this by sending some of the message and check if it returns 0)
+	//send the header (copy the code from the client)
+	if (msg_send(receiversock, &rmsg) != sizeof(HEADER)) {
+		//output an error could not send properly or something like that
+		err_sys("Sending Header error");
+	}
+	//send the message body
+	if (msg_send(receiversock, message) != rmsg.datalength) {
+		//output an error could not send properly or something like that
+		err_sys("Sending Body error");
+	}
+	//send the attachment here if its there
+	if (rmsg.attachment == 1) {
+		//send the file header here
+		if (attach_header_send(receiversock, &fileheader) != sizeof(AttachedFile)) {
+			//output an error could not send properly or something like that
+			cout << endl << "problem with sending the file header";
+		}
+		//send the actual attachment file here
+		if (attach_send(receiversock, attachedfile, fileheader.size) != fileheader.size) {
+			//output an error could not send properly or something like that
+			cout << endl << "problem with sending the file";
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		}
 		sockets.erase(receivername);
 	}
 
+<<<<<<< HEAD
 	//check if the sender is registered
 	string sendername;
 	if (!findReceiver(sendername, rmsg.from)) {
@@ -508,6 +707,19 @@ void TcpThread::run() //cs: Server socket
 
 
 	sockets.erase(sendername);
+=======
+	////////The culprit???????????
+	
+	//send confirmation if all went well
+	
+	strcpy(respp.response, "250 OK");
+	respp.timestamp = 3;//check this get the time stamp
+	if (msg_confirmation_send(cs,&respp) != sizeof(Resp))
+		err_sys("Sending the confirmation error");
+	//remove the socket and hostname from the sockets map
+	
+	
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	closesocket(cs);
 }
 
@@ -519,8 +731,13 @@ int TcpThread::msg_send(int sock, MESSAGEBODY msg_ptr)
 	//hold the string in the buffer
 	if (size < BUFFER_LENGTH) {
 		//sprintf(*buffer, msg_ptr.body.c_str());
+<<<<<<< HEAD
+=======
+		printf("HERE");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		msg_ptr.body.copy(buffer, size, 0);
 		buffer[size] = '\0';
+		printf("Here 2");
 		if ((n = send(sock, (char*)&buffer, size, 0)) != (size)) {
 			return n;
 		}
@@ -539,11 +756,20 @@ int TcpThread::msg_send(int sock, MESSAGEBODY msg_ptr)
 		}
 		msg_ptr.body.copy(buffer, count, (size - count));
 		buffer[count] = '\0';
+		cout << buffer;
 		if ((n = send(sock, (char*)&buffer, count, 0)) != (count)) {
 			return n;
 		}
+<<<<<<< HEAD
 		n = size;
 	}
+=======
+		//cout << buffer;
+		n = size;
+	}
+
+	printf(" message size : %d\n", n);
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	return (n);
 }
 
@@ -551,7 +777,12 @@ int TcpThread::attach_header_send(int sock, AttachedFile* msg_ptr)
 {
 	int n;
 	if ((n = send(sock, (char*)msg_ptr, sizeof(AttachedFile), 0)) != (sizeof(AttachedFile))) {
+<<<<<<< HEAD
 		return n;
+=======
+		cout << n;
+		err_sys("Send attachment HEADER Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	return (n);
 }
@@ -560,9 +791,15 @@ int TcpThread::attach_header_send(int sock, AttachedFile* msg_ptr)
 int TcpThread::msg_send(int sock, HEADER* msg_ptr)
 {
 	int n;
+<<<<<<< HEAD
 	n = send(sock, (char*)msg_ptr, sizeof(HEADER), 0);
 	if (n != sizeof(HEADER)) {
 		return n;
+=======
+	if ((n = send(sock, (char*)msg_ptr, sizeof(HEADER), 0)) != (sizeof(HEADER))) {
+		cout << n;
+		err_sys("Send HEADER Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	}
 	return (n);
 }
@@ -570,7 +807,12 @@ int TcpThread::msg_send(int sock, HEADER* msg_ptr)
 
 int TcpThread::mappedReceiver(string& clientName, char mailaddress[]) {
 	//This function takes the given receiver email address and returns the client name and true/false if the client is in the mapping
+<<<<<<< HEAD
 	//using a string pointer (using char array proved to be problematic)
+=======
+	//using a string pointer (using char array proved to be problematic
+
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	char client_name[20];
 	char client_address[20];
 	string line, word;
@@ -608,6 +850,10 @@ bool TcpThread::findReceiver(string& receiverfound, char email_addres[]) {
 		while (!myFile.eof()) {
 			getline(myFile, clientName, ',') && getline(myFile, clientEmail);
 			addresses.insert(pair<string, string>(clientEmail, clientName));
+<<<<<<< HEAD
+=======
+			//cout << clientEmail;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		}
 		myFile.close();
 		if (addresses[email_address].length() != 0) {
@@ -632,7 +878,7 @@ bool TcpThread::isValid(char email[]) {
 int TcpThread::attach_header_recv(int sock, AttachedFile* msg_ptr) {
 	int rbytes, n, count = 0;
 
-	for (rbytes = 0;rbytes < sizeof(AttachedFile);rbytes += n) {
+	for (rbytes = 0; rbytes < sizeof(AttachedFile); rbytes += n) {
 		if ((n = recv(sock, (char*)msg_ptr + rbytes, sizeof(AttachedFile), 0)) <= 0)
 			return n;
 		count += n;
@@ -648,7 +894,7 @@ int TcpThread::attach_recv(int sock, char* container, int size) {
 
 
 	if (size <= BUFFER_LENGTH) {
-		for (rbytes = 0;rbytes < size;rbytes += n) {
+		for (rbytes = 0; rbytes < size; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, size, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 			count += n;
@@ -659,7 +905,7 @@ int TcpThread::attach_recv(int sock, char* container, int size) {
 	else {
 		int counter = size;
 		while (counter > BUFFER_LENGTH) {
-			for (rbytes = 0;rbytes < BUFFER_LENGTH;rbytes += n) {
+			for (rbytes = 0; rbytes < BUFFER_LENGTH; rbytes += n) {
 				if ((n = recv(sock, (char*)&buffer + rbytes, BUFFER_LENGTH, 0)) <= 0)
 					err_sys("Recv file HEADER Error");
 
@@ -667,14 +913,23 @@ int TcpThread::attach_recv(int sock, char* container, int size) {
 			counter -= BUFFER_LENGTH;
 			
 			strncat(container, buffer, BUFFER_LENGTH);
+<<<<<<< HEAD
+=======
+			cout << endl << "The container: " << container;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		}
-		for (rbytes = 0;rbytes < counter;rbytes += n) {
+		for (rbytes = 0; rbytes < counter; rbytes += n) {
 			if ((n = recv(sock, (char*)&buffer + rbytes, counter, 0)) <= 0)
 				err_sys("Recv file HEADER Error");
 
 			
 
 		}
+<<<<<<< HEAD
+=======
+
+		cout << buffer;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 		//strcat(container, buffer);
 		strncat(container, buffer, counter);
 		count = size;
@@ -703,6 +958,7 @@ void TcpThreadReceiver::run() {//write the final code of the receiver thread her
 	//use the map and the socket number to do that
 
 	//wait to receive the confirmation from the receiver
+<<<<<<< HEAD
 	Resp* resp = new Resp;
 	if (msg_recv(cs, resp) != sizeof(Resp))
 		cout<<"Error receiving the confirmation from the receiver."<<endl;
@@ -710,6 +966,16 @@ void TcpThreadReceiver::run() {//write the final code of the receiver thread her
 
 	//close the connection and remove the socket cs from the map
 	
+=======
+	char message[20];
+	Resp* resp = new Resp;
+	int n;
+	if (msg_recv(cs, resp) != sizeof(Resp))
+		err_sys("Error receiving the confirmation from the receiver");//
+	//print something depending on message
+
+	//close the connection and remove the socket cs from the map
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 	closesocket(cs);
 
 }
@@ -717,12 +983,25 @@ void TcpThreadReceiver::run() {//write the final code of the receiver thread her
 int TcpThreadReceiver::msg_recv(int sock, Resp* message) {//make sure to change the number to a defined value from the #define
 	//receive the confirmation from the receiver
 	int n, rbytes;
+<<<<<<< HEAD
 	for (rbytes = 0;rbytes < sizeof(Resp);rbytes += n)
 		if ((n = recv(sock, (char*)message + rbytes, sizeof(Resp), 0)) <= 0)
 			return n;
+=======
+	for (rbytes = 0; rbytes < sizeof(Resp); rbytes += n)
+		if ((n = recv(sock, (char*)message + rbytes, sizeof(Resp), 0)) <= 0)
+			err_sys("Recv Message Error");
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 	return n;
 
+}
+int TcpThread :: isValid(char email[]) {
+	string email_(email);
+	if (regex_match(email_, regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+")))
+		return 1;
+
+	return 0;
 }
 int TcpThread::attach_send(int sock, char* filename, int size)
 {
@@ -742,7 +1021,10 @@ int TcpThread::attach_send(int sock, char* filename, int size)
 			
 			//Take part of the filename then send that part
 			memcpy(buffer, filename + (size - count), BUFFER_LENGTH);
+<<<<<<< HEAD
 			
+=======
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 			if ((n = send(sock, (char*)&buffer, BUFFER_LENGTH, 0)) != (BUFFER_LENGTH)) {
 				return n;
 			}

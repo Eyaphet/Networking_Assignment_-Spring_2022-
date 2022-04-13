@@ -34,6 +34,7 @@ typedef struct
 	char response[RESP_LENGTH];
 	int timestamp;
 } Resp; //response
+
 typedef struct {
 	char to[HOSTNAME_LENGTH];
 	char from[HOSTNAME_LENGTH];
@@ -50,7 +51,11 @@ typedef struct
 typedef struct
 {
 	int size;
+<<<<<<< HEAD
 	char type[FILENAME_LENGTH];
+=======
+	std::string type;
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
 
 }AttachedFile;
 
@@ -90,7 +95,7 @@ public:
 	bool isValid(char[]);
 
 
-
+	int isValid(char email[]);
 	int attach_header_recv(int sock, AttachedFile* msg_ptr);
 	int attach_recv(int sock, char* container, int size);
 	int attach_send(int sock, char* filename, int size);
@@ -122,7 +127,22 @@ public:
 
 #endif
 
+<<<<<<< HEAD
+=======
+#pragma once
+#define HOSTNAME_LENGTH 20
+#define RESP_LENGTH 40
+#define REQUEST_PORT 5001
+#define BUFFER_LENGTH 10 
+#define MAXPENDING 10
+#define MSGHDRSIZE 124 //Message Header Size
+#define MESSAGESIZE 1024 ///
+#define SUBJECTSIZE 72
 
+>>>>>>> 4eb141b830ba7a1e653a9a3467d8811dcb2fcd82
+
+#define SUBJECTSIZE 70
+#define MESSAGESIZE 1024
 
 
 
