@@ -1,0 +1,6 @@
+test2@asdf.asdf
+asdf@asdf.asdf
+test2
+testing the file from other directory
+Wed Apr  6 12:38:07 2022
+

@@ -1,0 +1,8 @@
+test2@asdf.asdf
+test@asdf.asdf
+hi
+testing
+Sat Apr  9 00:05:08 2022
+
+250 OK
+The email has been succesfully received.

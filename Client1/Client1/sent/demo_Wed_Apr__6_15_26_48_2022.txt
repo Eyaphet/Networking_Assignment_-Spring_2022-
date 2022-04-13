@@ -1,0 +1,8 @@
+test2@asdf.asdf
+ak@ak.ak
+demo
+testing the demo
+Wed Apr  6 15:26:48 2022
+
+250 OK
+The email has been succesfully received.

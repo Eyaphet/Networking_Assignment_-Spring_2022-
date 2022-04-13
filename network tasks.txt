@@ -26,8 +26,5 @@ Receiver:
 
 
 
-any data on cases that got serious/fatal because of delays on ambulance and stuff (not really sure  if it makes sense)
-
-stats on how many non-serious stuff (some headachs and stuff that dont really require much resources) end up in the hospital  (reduce overcrowding hospitals)
 
 

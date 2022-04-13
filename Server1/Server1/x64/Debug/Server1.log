@@ -1,13 +1,10 @@
-﻿  server.cpp
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(46,26): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(83,27): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(339,11): warning C4129: 'm': unrecognized character escape sequence
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(224,9): warning C4101: 'result': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(216,15): warning C4101: 'stat_buf': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(225,6): warning C4101: 'what': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(211,8): warning C4101: 'reqp': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(214,9): warning C4101: 'smsg': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(357,30): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(428,8): warning C4101: 'mappingfile': unreferenced local variable
-D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(451): warning C4715: 'TcpThread::mappedReceiver': not all control paths return a value
+﻿  Thread.cpp
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\Thread.cpp(20,31): warning C4244: '=': conversion from 'uintptr_t' to 'int', possible loss of data
+  server.cpp
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(49,26): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(85,27): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(219,15): warning C4101: 'stat_buf': unreferenced local variable
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(517,30): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\Server1\server.cpp(598): warning C4715: 'TcpThread::mappedReceiver': not all control paths return a value
   Server1.vcxproj -> D:\Course Material\Spring 2022\Computer Networks (LAB)\Assignment\Assignment 1\Server1\x64\Debug\Server1.exe
